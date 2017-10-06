@@ -1,0 +1,6 @@
+<Response>
+    <Say voice="man">All users have now connected! You will now be connected to the conference line.</Say>
+    <Dial>
+        <Conference>ConferenceRoom1</Conference>
+    </Dial>
+</Response>

@@ -1,0 +1,7 @@
+<Response>
+    <Pause length="2"/>
+    <Say voice="man">Thank you for joining the call. Please wait until all others have joined and then your music will start automatically.</Say>
+    <Pause length="5" />
+    <Say voice="man">Thank you for joining the call. Please wait until all others have joined and then your music will start automatically.</Say>
+    <Pause length="120" />
+</Response>

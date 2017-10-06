@@ -1,0 +1,6 @@
+<Response>
+    <Pause length="1"/>
+    <Say voice="man">All users have now connected! The music will begin shortly.</Say>
+    <Pause length="2"/>
+    <Play>https://storage.googleapis.com/spectrum-interactive-test-bucket/eyeoftiger.mp3</Play>
+</Response>
