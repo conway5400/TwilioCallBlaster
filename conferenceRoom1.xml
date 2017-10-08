@@ -1,0 +1,6 @@
+<Response>
+    <Say voice="man">You will now be connected to Conference Room 1.</Say>
+    <Dial>
+        <Conference>ConferenceRoom1</Conference>
+    </Dial>
+</Response>

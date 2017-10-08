@@ -1,7 +1,7 @@
 {% include 'header.html' %}
     
 <div id="container">
-    <h2>Twilio Manager Home Page</h2>
+    <h2>Phone Call Manager Home Page</h2>
 
     <button id="startCalls">Start Calls</button>
     <select id="selectRouting" name="">
@@ -11,26 +11,37 @@
     </select>
     <button id="endCalls">End Calls</button>
 
-    <h3>Signed Up Contacts</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Phone Number</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for contact in contacts %}
-                <tr>
-                    <td>{{ contact.name }}</td>
-                    <td>{{ contact.phoneNumber }}</td>
-                </tr>
+    <h3>Phone Calls Manager</h3>
+    <div id="callCenterContainer">
+        <div data-roomId="inactiveRoom" id="inactiveCallContainer">
+            <h3>Inactive Call Container</h3>
+            {% for call in allCallBanks.callBanks[0].calls %}
+                
+                <div class="phoneCall" data-callGroup="inactiveRoom" data-phoneNumber="{{ call.toNumber }}">
+                    <h4>{{ call.contact.name }}</h4>
+                    <h6>{{ call.toNumber }}</h6>
+                    <p>{{ call.callStatus }}</p>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
-    <ul>
+        </div>
+        <div id="activeCallsContainer">
+            <h3>Active Call Container</h3>
+            <div data-roomId="musicRoom" class="callGroupContainer musicGroup">
+                <h3>Music Group</h3>
+            </div>
+            <div data-roomId="confRoom1" class="callGroupContainer conferenceGroup">
+                <h3>Conf Room #1</h3>
+            </div>
+            <div data-roomId="confRoom2" class="callGroupContainer conferenceGroup">
+                <h3>Conf Group #2</h3>
+            </div>
+            <div data-roomId="confRoom3" class="callGroupContainer conferenceGroup">
+                <h3>Conf Group #3</h3>
+            </div>
+        </div>
+    </div>
 
-    </ul>
+
 
 </div>
 
