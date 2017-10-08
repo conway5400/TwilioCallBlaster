@@ -1,13 +1,10 @@
-console.log("connected")
-var checking = true
-
 $(".callGroupContainer .phoneCall").css({'width':($(".phoneCall").width()+'px')});
+
 $('.phoneCall').draggable({
      revert: "invalid",
      helper: "clone"
  });
 
-    
 $( ".callGroupContainer, #inactiveCallContainer" ).droppable({
     drop: function( event, ui ) {
             
@@ -19,38 +16,31 @@ $( ".callGroupContainer, #inactiveCallContainer" ).droppable({
         var phoneNumber = $(ui.draggable[0]).data('phonenumber')
         var routing = $(this).data('roomid')
 
-
-        console.log(origin, phoneNumber, routing)
+        console.log("FROM " + origin + " BY " + phoneNumber + " TO " +routing)
 
         //determine routing of call
         //first get rid of false drops where same box was used
         if (origin != routing) {
             console.log("Hey this box MOVED!");
-
             //route call appropriately
             if (routing == 'inactiveRoom') {
-                endCall (phoneNumber, origin)
+                action = 'end'
+                console.warn("THIS IS ENDING A CALL")
             } else if (origin == 'inactiveRoom') {
-                startCall(phoneNumber, routing, origin);
+                action = 'start'
+                console.warn("THIS IS A NEW CALL")
             } else {
-                rerouteCall(phoneNumber, routing, origin);
+                action = 'reroute'
+                console.warn("THIS IS REROUTING A CALL")
             }
 
-            //update the status of the call and move row by appending
-            $(ui.draggable[0]).attr('data-callgroup',routing)
-            $(ui.draggable).clone().appendTo(this);   
+            //server action
+            changeCall(action, phoneNumber, routing, origin)
 
-            //Make new item draggable
-            $(this).children('.phoneCall').draggable({
-                 revert: "invalid",
-                 helper: "clone"
-             });
+            //front end action
+            moveCall($(ui.draggable), routing)
 
-            ui.draggable.remove();
-
-        } else {
-            console.log("Hey this box didn't move!")
-        }
+        } 
     },
     over: function (event, ui) {
         $(this).addClass('groupHover');
@@ -60,78 +50,57 @@ $( ".callGroupContainer, #inactiveCallContainer" ).droppable({
     }
 });
 
-//this will probably phase out, and replace with front end JS loop that utilizes start call for proper groups
-$('#startCalls').on('click', function(){
-    console.log("start calls")
-    var group = "musicRoom"
-    // var group = "confRoom2"
-    $.post( "/startCalls", { routing: $('#selectRouting').val() } )
-        .done(function( res ) {
-            checking = true;
-            // checkCallStatus()
-            console.log(res)
-    });
+$('#startAllCalls').on('click', function(){
+    console.log("start all calls")
+    var routing = $('#selectRouting').val()
+    startAllCalls(routing)
 });
 
-
-function startCall (phoneNumber, routing, origin) {
-    $.post( "/startCall", { phoneNumber: phoneNumber, routing: routing, origin: origin } )
-        .done(function( res ) {
-            console.log(res);
-    });
-
-}
-
-function endCall (phoneNumber, origin) {
-    $.post( "/endCall", { phoneNumber: phoneNumber, origin: origin } )
-        .done(function( res ) {
-            console.log(res);
-    });
-}
-
-function rerouteCall(phoneNumber, routing, origin) {
-
-    $.post( "/rerouteCall", { phoneNumber: phoneNumber, routing: routing, origin: origin } )
-            .done(function( res ) {
-                console.log(res);
-    });
-}
-
-
-
-
-$('#endCalls').on('click', function(){
-    console.log("end calls")
-    $.post( "/endCalls", { routing: "test" } )
-        .done(function( res ) {
-            checking = false;
-            // $('#contactRows').html(initialTableHtml)
-
-    });
+$('#endAllCalls').on('click', function(){
+    console.log("end all calls")
+    endAllCalls()
 });
 
 
 function checkCallStatus() {
-    if (checking == true) {
-        $.get( "/callsStatus").done(function( res ) {
+    $.get( "/callsStatus").done(function( res ) {
 
-            obj = JSON.parse(res)
-            for (contact in obj.contacts) {
+        obj = JSON.parse(res)
+        
+        setTimeout(checkCallStatus, 500)
+    });
+    
+} 
 
-                name = obj.contacts[contact].name
-                phoneNumber = obj.contacts[contact].phoneNumber
-                callStatus = obj.contacts[contact].calls[obj.contacts[contact].calls.length - 1].callStatus
+function startAllCalls(routing) {
+    $.post( "/startAllCalls", { routing: routing } )
+        .done(function(res) {
+            var calls = $('#inactiveCallContainer .phoneCall')
 
-                rowsHTML.push(generateContactRowHTML(name, phoneNumber, callStatus));
-                
+            for (var i = 0; i < calls.length; i++) {
+                moveCall($(calls[i]), routing)
             }
 
-            htmlStr = rowsHTML.join()
+    });
+}   
 
-            $('#contactRows').html('')
-            $('#contactRows').html(htmlStr)
+function endAllCalls() {
+    $.post( "/endAllCalls")
+        .done(function(res) {
+            console.log(res);
+    });
+}
 
-            setTimeout(checkCallStatus, 500)
-        });
-    }
-} 
+function changeCall(action, phoneNumber, routing, origin) {
+    $.post( "/callChange", { action: action, phoneNumber: phoneNumber, routing: routing, origin: origin } )
+        .done(function( res ) {
+            console.log(res);
+    });
+}
+
+function moveCall(call, routing) {
+
+    var target = $('[data-roomid="' + routing + '"]');
+    $(call[0]).data('callgroup', routing)
+    call.appendTo(target);
+}
